@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.sillyv.sillyindex.MainActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_marginBottom="50dp"
+        android:layout_height="match_parent">
+
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/main_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#ffff00"
+            android:text="Hello World!" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/index_recycler"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:text="Hello World!" />
+
+        <include
+            android:id="@+id/holder_text_view"
+            layout="@layout/index" />
+
+
+    </RelativeLayout>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"/>
+</RelativeLayout>
