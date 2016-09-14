@@ -10,9 +10,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Vasili on 9/7/2016.
- */
 public class IndexAdapter extends RecyclerView.Adapter<IndexAdapter.ItemHolder> implements com.sillyv.stickyindex.IndexAdapter {
     private final Context context;
 
@@ -21,7 +18,25 @@ public class IndexAdapter extends RecyclerView.Adapter<IndexAdapter.ItemHolder> 
         return initials;
     }
 
-    private final List<MyInitial> initials;
+    public void setInitials(List<String> strings) {
+       initials = new ArrayList<>();
+        if (strings.size() > 0) {
+            initials.add(new MyInitial(strings.get(0), true, false));
+            for (int i = 1; i < strings.size(); i++) {
+                boolean isFirst = false;
+                if (!strings.get(i).equals(strings.get(i - 1))) {
+                    isFirst = true;
+
+                    initials.get(i - 1).setLast(true);
+                }
+                initials.add(new MyInitial(strings.get(i), isFirst, false));
+            }
+        }
+
+
+    }
+
+    private List<MyInitial> initials;
     private final View.OnClickListener listener;
 
     public IndexAdapter(Context context, List<String> strings, View.OnClickListener listener) {
@@ -66,7 +81,6 @@ public class IndexAdapter extends RecyclerView.Adapter<IndexAdapter.ItemHolder> 
     public int getItemCount() {
         return initials.size();
     }
-
 
     public class ItemHolder extends RecyclerView.ViewHolder {
 

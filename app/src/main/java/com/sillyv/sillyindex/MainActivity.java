@@ -5,7 +5,10 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.sillyv.stickyindex.StickyScrollListener;
@@ -18,6 +21,9 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerAdapter recyclerAdapter;
     private IndexAdapter stickyRecyclerAdapter;
     private TextView textView;
+    private StickyScrollListener<MyInitial> myScrollListener;
+    private RecyclerView sticky_recycler;
+    private RecyclerView recyclerView;
 
 
     @Override
@@ -25,15 +31,40 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         textView = (TextView) findViewById(R.id.index_textview);
+        EditText editText = (EditText) findViewById(R.id.edit_text_text);
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-        List<String> strings = generateNAmes();
-        List<String> initials = new ArrayList<>();
-        for (String str :
-                strings) {
-            initials.add(str.substring(0, 1));
-        }
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.main_recycler);
-        RecyclerView sticky_recycler = (RecyclerView) findViewById(R.id.index_recycler);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String newString = charSequence.toString();
+                List<String> newStrings = generateNames(newString);
+                textView.setVisibility(View.INVISIBLE);
+                myScrollListener.removeTouchListeners(recyclerView,sticky_recycler);
+                recyclerAdapter.setStrings(newStrings);
+                stickyRecyclerAdapter.setInitials(getInitials(newStrings));
+                recyclerAdapter.notifyDataSetChanged();
+                stickyRecyclerAdapter.notifyDataSetChanged();
+                sticky_recycler.removeOnScrollListener(myScrollListener);
+                myScrollListener = new StickyScrollListener<>(sticky_recycler,recyclerView, textView, R.id.index_textview);
+                sticky_recycler.addOnScrollListener(myScrollListener);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+        List<String> strings = generateNames();
+        List<String> initials = getInitials(strings);
+
+
+        recyclerView = (RecyclerView) findViewById(R.id.main_recycler);
+        sticky_recycler = (RecyclerView) findViewById(R.id.index_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         sticky_recycler.setLayoutManager(new LinearLayoutManager(this));
 
@@ -54,14 +85,24 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(recyclerAdapter);
         sticky_recycler.setAdapter(stickyRecyclerAdapter);
 
-        sticky_recycler.addOnScrollListener(new StickyScrollListener<MyInitial>(sticky_recycler,textView,R.id.index_textview));
-        StickyScrollListener.bindRecyclerViews(recyclerView,sticky_recycler);
+        myScrollListener = new StickyScrollListener<>(sticky_recycler,recyclerView, textView, R.id.index_textview);
+        sticky_recycler.addOnScrollListener(myScrollListener);
 
+    }
+
+    @NonNull
+    private List<String> getInitials(List<String> strings) {
+        List<String> initials = new ArrayList<>();
+        for (String str :
+                strings) {
+            initials.add(str.substring(0, 1));
+        }
+        return initials;
     }
 
 
     @NonNull
-    private List<String> generateNAmes() {
+    private List<String> generateNames() {
         final List<String> strings = new ArrayList<>();
         strings.add("Jeni Querry");
         strings.add("Russell Eng");
@@ -83,7 +124,64 @@ public class MainActivity extends AppCompatActivity {
         strings.add("Clarisa Ries");
         strings.add("Nicol Odaniel");
         strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Hung Stryker");
+        strings.add("Vasia");
+        strings.add("Vaska Fedodik");
+        strings.add("Vasilisa Prekrastnaya");
+        strings.add("Vasili Fedotov");
         strings.add("Maximina Pfarr");
+
         strings.add("Aleshia Etter");
         strings.add("Julianne Priester");
         strings.add("Jose Keaney");
@@ -215,4 +313,19 @@ public class MainActivity extends AppCompatActivity {
         java.util.Collections.sort(strings);
         return strings;
     }
+
+
+    private List<String> generateNames(String query) {
+        final List<String> strings = generateNames();
+        final List<String> newStrings = new ArrayList<>();
+        for (String str :
+                strings) {
+            if (str.toLowerCase().contains(query.toLowerCase())) {
+                newStrings.add(str);
+            }
+
+        }
+        return newStrings;
+    }
 }
+

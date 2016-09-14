@@ -9,13 +9,14 @@ import android.widget.TextView;
 
 import java.util.List;
 
-/**
- * Created by Vasili on 9/7/2016.
- */
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ItemHolder> {
     private final Context context;
-    private final List<String> strings;
+    private List<String> strings;
     private final View.OnClickListener listener;
+
+    public void setStrings(List<String> strings) {
+        this.strings = strings;
+    }
 
     public RecyclerAdapter(Context context, List<String> strings, View.OnClickListener listener) {
         this.context = context;

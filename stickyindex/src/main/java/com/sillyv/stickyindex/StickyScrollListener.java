@@ -11,9 +11,14 @@ import android.widget.TextView;
 import java.util.List;
 
 /**
- * Created by Vasili on 9/13/2016.
+ * Created by Vasili Fedotov on 9/13/2016.
+ * This Listener has to be reapplied every time the content changed.
+ * before reapplying listener, please remove it, clear listeners with the removeTouchListeners function
+ * recreate it and apply it.
+ * good day!
  */
 public class StickyScrollListener<INIT extends Initial> extends RecyclerView.OnScrollListener {
+
 
     private final TextView tv;
     private int textViewIndex;
@@ -21,19 +26,22 @@ public class StickyScrollListener<INIT extends Initial> extends RecyclerView.OnS
     private List initials;
     private IndexAdapter indexAdapter;
 
+    RecyclerView.OnScrollListener mRightOSL;
+    private RecyclerView.OnItemTouchListener tempListener;
+    private RecyclerView.OnItemTouchListener listener;
+
     public StickyScrollListener(RecyclerView stickyRecycler,
+                                RecyclerView mainRecycler,
                                 TextView textView,
                                 int textViewIndex) {
-
         sticky_recycler = stickyRecycler;
-
         if (stickyRecycler.getAdapter() != null && stickyRecycler.getAdapter() instanceof IndexAdapter) {
-
-
             indexAdapter = (IndexAdapter) stickyRecycler.getAdapter();
             this.initials = indexAdapter.getInitials();
             this.tv = textView;
             this.textViewIndex = textViewIndex;
+            bindRecyclerViews(mainRecycler, stickyRecycler, mRightOSL);
+
         } else {
             throw new RuntimeException("RecyclerView must contain Adapter that implements IndexAdapter");
         }
@@ -43,7 +51,7 @@ public class StickyScrollListener<INIT extends Initial> extends RecyclerView.OnS
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         super.onScrolled(recyclerView, dx, dy);
         int x = ((LinearLayoutManager) sticky_recycler.getLayoutManager()).findFirstVisibleItemPosition();
-        if (recyclerView != null) {
+        if (recyclerView != null && indexAdapter.getInitials().size() > 1) {
             View firstVisibleView = sticky_recycler.getChildAt(0);
             View secondVisibleView = sticky_recycler.getChildAt(1);
 
@@ -51,7 +59,7 @@ public class StickyScrollListener<INIT extends Initial> extends RecyclerView.OnS
             TextView secondRowIndex = (TextView) secondVisibleView.findViewById(textViewIndex);
 
             int visibleRange = recyclerView.getChildCount();
-            int actual = recyclerView.getChildPosition(firstVisibleView);
+            int actual = recyclerView.getChildAdapterPosition(firstVisibleView);
             int next = actual + 1;
             int last = actual + visibleRange;
 
@@ -81,30 +89,26 @@ public class StickyScrollListener<INIT extends Initial> extends RecyclerView.OnS
         return (indexAdapter.getInitials().get(getIndexContext(secondRowIndex))).isFirst();
     }
 
+    public static void reBindRecyclerViews(final RecyclerView mainRecycler, final RecyclerView indexRecycler) {
 
-    public static void bindRecyclerViews(final RecyclerView mainRecycler, final RecyclerView indexRecycler) {
-        RecyclerView.OnScrollListener mLeftOSL = new SelfRemovingOnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull final RecyclerView recyclerView, final int dx, final int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                recyclerView.scrollBy(dx, dy);
-            }
-        };
 
-        RecyclerView.OnScrollListener mRightOSL = new SelfRemovingOnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull final RecyclerView recyclerView, final int dx, final int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                indexRecycler.scrollBy(dx, dy);
-            }
-        };
+    }
+
+    public void bindRecyclerViews(final RecyclerView mainRecycler, final RecyclerView indexRecycler, RecyclerView.OnScrollListener mRightOSL) {
+
         StickyRecyclviewTouchListener(indexRecycler);
-        SetRecycleViewTouchListener(mainRecycler, indexRecycler, mLeftOSL, mRightOSL);
+        SetRecycleViewTouchListener(mainRecycler, indexRecycler, mRightOSL);
     }
 
 
-    private static void StickyRecyclviewTouchListener(RecyclerView stickyRecyclerView) {
-        stickyRecyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+    private void StickyRecyclviewTouchListener(RecyclerView stickyRecyclerView) {
+        listener = getOnItemTouchListener();
+        stickyRecyclerView.addOnItemTouchListener(listener);
+    }
+
+    @NonNull
+    private RecyclerView.OnItemTouchListener getOnItemTouchListener() {
+        return new RecyclerView.OnItemTouchListener() {
             private int mLastY;
 
             @Override
@@ -120,16 +124,29 @@ public class StickyScrollListener<INIT extends Initial> extends RecyclerView.OnS
             @Override
             public void onRequestDisallowInterceptTouchEvent(final boolean disallowIntercept) {
             }
-        });
+        };
     }
 
-    private static void SetRecycleViewTouchListener(RecyclerView recyclerView, final RecyclerView stickyRecyclerView,
-                                                    RecyclerView.OnScrollListener mLeftOSL
-            , final RecyclerView.OnScrollListener mRightOSL
+    private void SetRecycleViewTouchListener(RecyclerView recyclerView, final RecyclerView stickyRecyclerView,
+                                             RecyclerView.OnScrollListener mRightOSL) {
+        if (mRightOSL == null) {
+            mRightOSL = initiateScrollViews();
+        }
+        final RecyclerView.OnScrollListener finalMRightOSL = mRightOSL;
+        if (tempListener == null) {
+            tempListener = getListener(stickyRecyclerView, finalMRightOSL);
+            recyclerView.addOnItemTouchListener(tempListener);
+        }
+    }
 
 
-    ) {
-        recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+    public void removeTouchListeners(RecyclerView mainRV, RecyclerView stickyRV) {
+        mainRV.removeOnItemTouchListener(tempListener);
+    }
+
+    @NonNull
+    private RecyclerView.OnItemTouchListener getListener(final RecyclerView stickyRecyclerView, final RecyclerView.OnScrollListener finalMRightOSL) {
+        return new RecyclerView.OnItemTouchListener() {
 
             private int mLastY;
 
@@ -154,10 +171,10 @@ public class StickyScrollListener<INIT extends Initial> extends RecyclerView.OnS
                         .getScrollState
                                 () == RecyclerView.SCROLL_STATE_IDLE) {
                     mLastY = rv.getScrollY();
-                    rv.addOnScrollListener(mRightOSL);
+                    rv.addOnScrollListener(finalMRightOSL);
                 } else {
                     if (action == MotionEvent.ACTION_UP && rv.getScrollY() == mLastY) {
-                        rv.removeOnScrollListener(mRightOSL);
+                        rv.removeOnScrollListener(finalMRightOSL);
                     }
                 }
             }
@@ -166,10 +183,17 @@ public class StickyScrollListener<INIT extends Initial> extends RecyclerView.OnS
             public void onRequestDisallowInterceptTouchEvent(final boolean disallowIntercept) {
                 Log.d("debug", "RIGHT: onRequestDisallowInterceptTouchEvent");
             }
-        });
-
-
+        };
     }
 
+    private RecyclerView.OnScrollListener initiateScrollViews() {
 
+        return new SelfRemovingOnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull final RecyclerView recyclerView, final int dx, final int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                sticky_recycler.scrollBy(dx, dy);
+            }
+        };
+    }
 }
